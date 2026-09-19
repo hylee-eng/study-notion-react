@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 스터디 노션 (React 버전)
 
-## Getting Started
+노션 학습 가이드 사이트를 Next.js로 다시 만든 버전입니다.
+같은 내용을 정적 HTML로 만든 버전이 `../study-notion-landing` 에 있고,
+이 저장소는 **같은 결과물을 컴포넌트와 데이터로 나누면 무엇이 달라지는지** 보기 위한 것입니다.
 
-First, run the development server:
+## 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # 개발 서버 (localhost:3000)
+npm run build   # 정적 HTML 생성
+npm start       # 생성된 결과물로 서버 실행
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 폴더 구조
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  layout.tsx          모든 페이지의 공통 뼈대 (네비·푸터가 여기 한 번만)
+  page.tsx            랜딩
+  level/[n]/page.tsx  레벨 다섯 페이지가 이 파일 하나
+  globals.css         디자인 토큰 + 스타일 전부
+components/
+  Section.tsx         섹션 껍데기 (여백이 기본값)
+  Shot.tsx            화면 재현 + 해설 묶음 (해설이 필수 항목)
+  StepBody.tsx        실습 한 단계를 그림
+  LevelHero.tsx       레벨 머리 카드
+  RelationAnalogy.tsx 관계형·롤업 비유 그림
+  DbViewer.tsx        데이터베이스 체험 위젯 (이 파일만 브라우저에서 동작)
+  screens/            노션 화면 재현 8종
+data/
+  levels.ts           레벨 다섯 개의 내용 전부
+  landing.ts          랜딩의 반복 항목 (문제 카드·학습 방식·대상자·FAQ)
+  tasks.ts            체험 위젯이 쓰는 업무 목록
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 정적 버전과 달라진 점
 
-## Learn More
+| | 정적 버전 | 이 버전 |
+|---|---|---|
+| 레벨 페이지 | HTML 5개 · 2,330줄 | 라우트 1개 + 데이터 |
+| 네비·푸터 | 6개 파일에 복제 | 컴포넌트 1개 |
+| 화면 재현 | 각 HTML에 흩어짐 | 컴포넌트 8종을 이름으로 호출 |
+| 체험 위젯 | HTML 문자열을 만들어 밀어 넣음 | 고른 보기를 상태로 기억 |
+| 섹션 여백 | `sec` 클래스를 매번 붙여야 함 | 여백이 기본값 |
 
-To learn more about Next.js, take a look at the following resources:
+## 구조에서 규칙을 강제한 부분
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+정적 버전에서 사람이 기억해야 했던 규칙 두 가지를 구조로 옮겼습니다.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **해설은 화면 박스 밖에 둔다** - `Shot` 컴포넌트의 `caption` 이 필수 항목이라,
+  화면만 넣고 해설을 빠뜨리면 빌드가 막힙니다.
+- **여백 없는 섹션이 연달아 오면 간격이 0이 된다** - `Section` 은 여백이 기본값이라
+  일부러 `pad={false}` 를 적지 않는 한 그 상황이 생기지 않습니다.
 
-## Deploy on Vercel
+## 서버 컴포넌트와 클라이언트 컴포넌트
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`'use client'` 가 붙은 파일은 `components/DbViewer.tsx` 하나뿐입니다.
+나머지는 서버에서 HTML로 만들어져 전달되고, 버튼을 눌러야 하는 이 위젯만 브라우저에서 움직입니다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+그래서 `npm run build` 를 하면 여섯 페이지(랜딩 + 레벨 5개)가 모두 정적 HTML로 생성되고,
+페이지마다 제목과 설명이 HTML 안에 그대로 들어갑니다. 공유 미리보기와 검색 노출이
+정적 버전과 같은 수준으로 유지되는 이유입니다.
+
+## 스타일
+
+`app/globals.css` 하나에 모여 있습니다. 정적 버전의 `style.css` 를 그대로 가져왔고,
+맨 위 `@theme` 블록에서 색 토큰을 정의합니다. 정적 버전이 HTML 안 `tailwind.config` 에
+적던 색과 같은 이름이라 `bg-canvas`, `text-ink` 처럼 그대로 쓸 수 있습니다.
+
+## 외부 리소스
+
+- Pretendard Variable (CDN) - 한글 웹폰트
+- 노션 화면은 이미지가 아니라 CSS로 그린 재현입니다. 외부 이미지에 의존하지 않습니다.
