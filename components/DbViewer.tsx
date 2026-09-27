@@ -6,7 +6,7 @@ import {
   STATUSES,
   STATUS_CLASS,
   AVATAR_CLASS,
-  WEEKS,
+  CALENDAR_MONTH,
   type Task,
   type Status,
 } from "@/data/tasks";
@@ -39,7 +39,7 @@ function Avatar({ owner }: { owner: string }) {
   return <span className={`av ${AVATAR_CLASS[owner]}`}>{owner.charAt(0)}</span>;
 }
 
-function MiniCard({ task, showStatus }: { task: Task; showStatus?: boolean }) {
+function MiniCard({ task }: { task: Task }) {
   return (
     <div className="mini">
       <div className="t-card-title text-ink">{task.title}</div>
@@ -48,11 +48,6 @@ function MiniCard({ task, showStatus }: { task: Task; showStatus?: boolean }) {
         <span className="t-cap text-bodytext">{task.owner}</span>
         <span className="t-cap text-muted push-right">{task.due}</span>
       </div>
-      {showStatus && (
-        <div className="mini-row">
-          <Badge status={task.status} />
-        </div>
-      )}
     </div>
   );
 }
@@ -109,25 +104,70 @@ function BoardView() {
   );
 }
 
+/**
+ * 노션의 캘린더 보기처럼 한 달을 일~토 7칸 달력으로 그리고,
+ * 업무를 마감일 칸에 카드로 올려 둡니다.
+ * 앞뒤 달의 날짜로 첫 주와 마지막 주의 빈칸을 채우는 것도 노션과 같습니다.
+ */
 function CalendarView() {
+  const { year, month } = CALENDAR_MONTH;
+  const first = new Date(year, month - 1, 1);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const prevMonthDays = new Date(year, month - 1, 0).getDate();
+  const lead = first.getDay(); // 1일 앞에 비는 칸 수 (일요일 시작)
+  const total = Math.ceil((lead + daysInMonth) / 7) * 7;
+
+  const cells = Array.from({ length: total }, (_, i) => {
+    const day = i - lead + 1;
+    if (day < 1) return { key: `p${i}`, label: prevMonthDays + day, inMonth: false, day: 0 };
+    if (day > daysInMonth) return { key: `n${i}`, label: day - daysInMonth, inMonth: false, day: 0 };
+    return { key: `d${day}`, label: day, inMonth: true, day };
+  });
+
   return (
-    <div className="col-grid">
-      {WEEKS.map((week) => {
-        const group = TASKS.filter((task) => task.week === week.key);
-        return (
-          <div key={week.key}>
-            <div className="col-head">
-              <span className="t-card-title text-ink">{week.label}</span>
-              <span className="t-cap text-muted push-right">{week.range}</span>
+    <div>
+      <div className="cal-top">
+        <span className="t-card-title text-ink">
+          {year}년 {month}월
+        </span>
+        <span className="cal-nav" aria-hidden="true">
+          <span className="cal-nav-btn">&lsaquo;</span>
+          <span className="cal-today">오늘</span>
+          <span className="cal-nav-btn">&rsaquo;</span>
+        </span>
+      </div>
+
+      <div className="tb-scroll">
+        <div className="cal">
+          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
+            <div key={d} className="cal-wd">
+              {d}
             </div>
-            <div className="col-body">
-              {group.map((task) => (
-                <MiniCard key={task.title} task={task} showStatus />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+          ))}
+
+          {cells.map((cell, i) => {
+            const tasks = cell.inMonth ? TASKS.filter((t) => t.day === cell.day) : [];
+            const weekend = i % 7 === 0 || i % 7 === 6;
+            return (
+              <div
+                key={cell.key}
+                className={`cal-cell ${weekend ? "cal-weekend" : ""} ${cell.inMonth ? "" : "cal-out"}`}
+              >
+                <span className="cal-num">{cell.label === 1 && cell.inMonth ? `${month}월 1일` : cell.label}</span>
+                {tasks.map((task) => (
+                  <div key={task.title} className="cal-card">
+                    <div className="cal-card-title">{task.title}</div>
+                    <div className="cal-card-row">
+                      <Avatar owner={task.owner} />
+                      <Badge status={task.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

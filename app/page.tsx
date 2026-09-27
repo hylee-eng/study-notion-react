@@ -3,8 +3,10 @@ import Link from "next/link";
 import Section from "@/components/Section";
 import HeroPreview from "@/components/HeroPreview";
 import DbViewer from "@/components/DbViewer";
+import FaqList from "@/components/FaqList";
 import { LEVELS } from "@/data/levels";
 import { PROBLEMS, HOW_ITEMS, AUDIENCE_FIT, AUDIENCE_UNFIT, FAQ } from "@/data/landing";
+import { SAMPLES } from "@/data/samples";
 
 export default function Home() {
   return (
@@ -153,6 +155,45 @@ export default function Home() {
         </div>
       </Section>
 
+      {/* ── 샘플 갤러리 ── */}
+      <Section id="samples">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-10 items-center">
+          <div className="md:col-span-5">
+            <h2 className="t-h2">
+              노션으로 <br className="hidden md:block" />
+              이런 것까지 됩니다
+            </h2>
+            <p className="t-body text-muted mt-5 lede-520">
+              실제 업무 데이터로 만든 샘플입니다. <br className="hidden md:block" />
+              완성본을 보고 그대로 따라 만들어 보세요.
+            </p>
+            <div className="mt-8">
+              <Link href="/samples" className="btn btn-secondary">
+                샘플 갤러리 보기
+              </Link>
+            </div>
+          </div>
+
+          <div className="md:col-span-7">
+            {SAMPLES.slice(0, 1).map((sample) => (
+              <Link
+                key={sample.slug}
+                href={`/samples/${sample.slug}`}
+                className={`card-sat ${sample.color} flex flex-col`}
+              >
+                <span className="pill bg-cream text-ink self-start">SAMPLE</span>
+                <h3 className="t-h3 text-ink mt-5">{sample.title}</h3>
+                <p className="t-body text-ink op-76 mt-3">{sample.desc}</p>
+                <div className="flex items-center gap-2 lv-meta sample-meta mt-8">
+                  <span className="t-cap text-ink op-76">따라 만들기 {sample.minutes}</span>
+                  <span className="text-ink lv-arrow">&rarr;</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </Section>
+
       {/* ── 이런 분께 맞습니다 ── */}
       <Section id="who">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-10">
@@ -202,15 +243,7 @@ export default function Home() {
           </div>
 
           <div className="md:col-span-8">
-            {FAQ.map((item) => (
-              <details key={item.q} className="faq">
-                <summary>
-                  <span className="t-card-title text-ink">{item.q}</span>
-                  <span className="faq-sign" />
-                </summary>
-                <p className="t-body text-bodytext faq-a">{item.a}</p>
-              </details>
-            ))}
+            <FaqList items={FAQ} />
           </div>
         </div>
       </Section>

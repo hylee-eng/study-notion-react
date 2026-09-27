@@ -11,6 +11,7 @@ const MENU = [
   { href: "/#why", label: "왜 어려울까" },
   { href: "/#path", label: "학습 경로" },
   { href: "/#try", label: "직접 해보기" },
+  { href: "/samples", label: "샘플 갤러리" },
   { href: "/#faq", label: "자주 묻는 질문" },
 ];
 

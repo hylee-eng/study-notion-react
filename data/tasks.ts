@@ -12,19 +12,20 @@ export type Task = {
   title: string;
   owner: string;
   due: string;
-  week: "w1" | "w2" | "w3";
+  /** 마감일의 날짜 숫자. 캘린더 보기에서 몇 일 칸에 놓을지 정합니다 */
+  day: number;
   status: Status;
 };
 
 export const TASKS: Task[] = [
-  { title: "주간 회의록 정리", owner: "김하늘", due: "3월 9일", week: "w1", status: "완료" },
-  { title: "콘텐츠 기획안 초안", owner: "이도윤", due: "3월 11일", week: "w1", status: "진행 중" },
-  { title: "촬영 일정 확정", owner: "박서연", due: "3월 13일", week: "w1", status: "진행 중" },
-  { title: "예산안 검토", owner: "최민준", due: "3월 17일", week: "w2", status: "완료" },
-  { title: "디자인 시안 공유", owner: "김하늘", due: "3월 19일", week: "w2", status: "진행 중" },
-  { title: "고객사 피드백 취합", owner: "이도윤", due: "3월 20일", week: "w2", status: "할 일" },
-  { title: "최종 보고서 작성", owner: "박서연", due: "3월 24일", week: "w3", status: "할 일" },
-  { title: "성과 리뷰 미팅", owner: "최민준", due: "3월 26일", week: "w3", status: "할 일" },
+  { title: "주간 회의록 정리", owner: "김하늘", due: "3월 9일", day: 9, status: "완료" },
+  { title: "콘텐츠 기획안 초안", owner: "이도윤", due: "3월 11일", day: 11, status: "진행 중" },
+  { title: "촬영 일정 확정", owner: "박서연", due: "3월 13일", day: 13, status: "진행 중" },
+  { title: "예산안 검토", owner: "최민준", due: "3월 17일", day: 17, status: "완료" },
+  { title: "디자인 시안 공유", owner: "김하늘", due: "3월 19일", day: 19, status: "진행 중" },
+  { title: "고객사 피드백 취합", owner: "이도윤", due: "3월 20일", day: 20, status: "할 일" },
+  { title: "최종 보고서 작성", owner: "박서연", due: "3월 24일", day: 24, status: "할 일" },
+  { title: "성과 리뷰 미팅", owner: "최민준", due: "3월 26일", day: 26, status: "할 일" },
 ];
 
 /* 아래는 데이터가 아니라 보여주는 규칙입니다 */
@@ -44,8 +45,5 @@ export const AVATAR_CLASS: Record<string, string> = {
   최민준: "av-4",
 };
 
-export const WEEKS = [
-  { key: "w1", label: "1주차", range: "3월 9일 ~ 13일" },
-  { key: "w2", label: "2주차", range: "3월 16일 ~ 20일" },
-  { key: "w3", label: "3주차", range: "3월 23일 ~ 27일" },
-] as const;
+/** 캘린더 보기가 그리는 달. 업무 마감일이 모두 이 달 안에 있습니다 */
+export const CALENDAR_MONTH = { year: 2026, month: 3 } as const;
