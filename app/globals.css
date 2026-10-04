@@ -668,3 +668,36 @@ body {
 .so-l-fee { flex:none; color:#0a0a0a; font-weight:600; font-variant-numeric:tabular-nums; }
 .so-l-more { color:#6a6a6a; }
 .so-amen li.so-amen-more { background:none; color:#6a6a6a; padding:0 4px; }
+
+/* ── 샘플 · 노션 DB를 진짜 DB로 (ndb-) ── */
+.ndb-tr-task { grid-template-columns:minmax(0,1fr) 112px 76px; }
+.ndb-rel { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px;
+  background:#f5f0e0; color:#0a0a0a; text-decoration:underline; text-decoration-color:#e5e5e5; text-underline-offset:3px; }
+.ndb-empty { color:#6a6a6a; font-size:12px; }
+.ndb-table-wrap { overflow-x:auto; border:1px solid #e5e5e5; border-radius:12px; background:#ffffff; }
+.ndb-table { width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
+/* 열 이름만 고정폭 글꼴. 한글 값까지 고정폭으로 쓰면 글자 사이가 벌어집니다 */
+.ndb-table th { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; text-align:left; font-weight:600; color:#6a6a6a; background:#faf5e8; padding:8px 12px; border-bottom:1px solid #e5e5e5; white-space:nowrap; }
+.ndb-table td { padding:8px 12px; border-bottom:1px solid #f0ebe0; color:#0a0a0a; white-space:nowrap; }
+.ndb-table tr:last-child td { border-bottom:none; }
+.ndb-table .ndb-hit { background:#fff1c9; }
+.ndb-table th.ndb-hit { color:#0a0a0a; }
+.ndb-null { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:#ff4d8b; font-weight:600; }
+.ndb-gloss { border-top:1px solid #e5e5e5; }
+.ndb-gloss-row { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; padding:14px 0; border-bottom:1px solid #e5e5e5; font-size:15px; }
+.ndb-gloss-head { font-size:13px; font-weight:500; color:#6a6a6a; display:none; }
+@media (min-width:768px) {
+  .ndb-gloss-row { grid-template-columns:180px 220px minmax(0,1fr); gap:16px; }
+  .ndb-gloss-head { display:grid; }
+}
+.ndb-code { background:#1a3a3a; color:#fffaf0; border-radius:16px; padding:20px 22px; overflow-x:auto;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; line-height:1.7; white-space:pre; }
+.ndb-list { list-style:disc; padding-left:18px; font-size:15px; line-height:1.6; color:#3a3a3a; }
+.ndb-list li + li { margin-top:6px; }
+
+/* ── "도움이 됐어요" 반응 버튼 ── */
+.react-box { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 20px;
+  padding:18px 22px; border:1px solid #e5e5e5; border-radius:16px; }
+.react-btn { cursor:pointer; gap:10px; }
+.react-btn:disabled { cursor:default; }
+.react-n { font-variant-numeric:tabular-nums; font-weight:600; min-width:1ch; }

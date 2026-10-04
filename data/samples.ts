@@ -35,4 +35,12 @@ export const SAMPLES: Sample[] = [
     tags: ["다중 선택", "지도 보기", "필터"],
     minutes: "30분",
   },
+  {
+    slug: "notion-vs-db",
+    title: "노션 DB를 진짜 DB로 옮기면",
+    desc: "레벨 5에서 만든 프로젝트·업무 데이터베이스를 실제 데이터베이스에 옮겨 나란히 놓았습니다. 관계형과 롤업이 속에서는 어떻게 저장되고 계산되는지 봅니다.",
+    color: "bg-ochre",
+    tags: ["관계형", "롤업", "데이터베이스 구조"],
+    minutes: "10분",
+  },
 ];

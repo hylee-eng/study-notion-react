@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 
+import { saveSnapshot, withSnapshot } from "@/lib/snapshot";
+
 import { AMENITIES, groupPlaces, type OfficePlace, type SharedOffice } from "./sharedOfficeModel";
 
 export { filterOffices, type OfficePlace, type SharedOffice } from "./sharedOfficeModel";
@@ -30,6 +32,8 @@ export type SharedOfficeData = {
   writtenAt: string;
   source: string;
   fetchedAt: string;
+  /** 공공데이터포털이 응답하지 않아 Supabase 저장본을 보여줄 때만 붙는 저장 시각 */
+  snapshotAt?: string;
 };
 
 type RawRow = Record<string, string | number | null>;
@@ -123,13 +127,30 @@ async function fetchSharedOfficesUncached(): Promise<SharedOfficeData> {
   const offices = rows.map(normalize).filter((o): o is SharedOffice => o !== null);
   const writtenAt = rows.map((r) => str(r["최종작성일"])).sort().pop() ?? "";
 
-  return { offices, places: groupPlaces(offices), writtenAt, source: SOURCE, fetchedAt: new Date().toISOString() };
+  const data: SharedOfficeData = {
+    offices,
+    places: groupPlaces(offices),
+    writtenAt,
+    source: SOURCE,
+    fetchedAt: new Date().toISOString(),
+  };
+  // 원본이 멈췄을 때를 대비해 정상 응답을 저장해 둡니다(하루 한 번)
+  await saveSnapshot(SNAPSHOT_KEY, data);
+  return data;
 }
 
+const SNAPSHOT_KEY = "shared-offices";
+
 /** 하루 동안 결과를 기억해 두는 조회 함수. 실패하면 기억하지 않고 다음 요청에서 다시 시도합니다 */
-export const getSharedOffices = unstable_cache(fetchSharedOfficesUncached, ["shared-offices"], {
+const getSharedOfficesCached = unstable_cache(fetchSharedOfficesUncached, [SNAPSHOT_KEY], {
   revalidate: CACHE_SECONDS,
 });
+
+/**
+ * 화면과 /api/shared-offices 가 쓰는 조회 함수.
+ * 공공데이터포털이 실패하면 Supabase 에 저장해 둔 마지막 정상 응답을 돌려주고 snapshotAt 을 붙입니다.
+ */
+export const getSharedOffices = withSnapshot(SNAPSHOT_KEY, getSharedOfficesCached);
 
 /** CSV 한 칸. 쉼표나 따옴표가 든 값은 따옴표로 감쌉니다 */
 function cell(v: string | number | null) {

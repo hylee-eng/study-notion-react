@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import Section from "@/components/Section";
+import ReactionButton from "@/components/ReactionButton";
 import Shot from "@/components/Shot";
 import CopyButton from "@/components/CopyButton";
 import SharedOfficeExplorer from "@/components/SharedOfficeExplorer";
@@ -14,6 +15,7 @@ import FilterScreen from "@/components/screens/office/FilterScreen";
 import AiEntry from "@/components/screens/office/AiEntry";
 import AiAsk from "@/components/screens/office/AiAsk";
 import { getSharedOffices, filterOffices, type SharedOfficeData } from "@/lib/sharedOffice";
+import { formatSnapshotDate } from "@/lib/snapshot";
 
 /* ══════════════════════════════════════════════════════════
    /samples/shared-office - 전국 공유 오피스 지도 샘플.
@@ -106,6 +108,9 @@ export default async function SharedOfficePage() {
             <SharedOfficeExplorer offices={data.places} />
             <p className="t-cap text-muted mt-5">
               출처: {data.source} · {writtenAt} 작성 자료 · 같은 주소의 상품 {data.offices.length}건을 {data.places.length}곳으로 묶어 보여줍니다 · 지금은 운영하지 않는 곳이 있을 수 있습니다
+              {data.snapshotAt && (
+                <> · 지금 원본 API가 응답하지 않아 {formatSnapshotDate(data.snapshotAt)}에 저장해 둔 목록을 보여줍니다</>
+              )}
             </p>
           </>
         ) : (
@@ -286,7 +291,9 @@ export default async function SharedOfficePage() {
       </Section>
 
       <Section>
-        <div className="pager">
+        <ReactionButton page="sample-shared-office" />
+
+        <div className="pager mt-6">
           <Link href="/samples" className="pager-card">
             <div className="t-cap text-muted">&larr; 목록으로</div>
             <div className="t-card-title text-ink mt-2">샘플 갤러리</div>

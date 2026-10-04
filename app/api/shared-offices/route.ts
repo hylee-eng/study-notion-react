@@ -41,6 +41,8 @@ export async function GET(request: Request) {
       listingCount: places.reduce((n, p) => n + p.listings.length, 0),
       writtenAt: data.writtenAt,
       source: data.source,
+      // 원본 API 가 멈춰 저장본을 돌려줄 때만 들어갑니다
+      snapshotAt: data.snapshotAt,
       places,
     });
   } catch (e) {

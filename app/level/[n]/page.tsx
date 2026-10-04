@@ -7,6 +7,7 @@ import Lines from "@/components/Lines";
 import LevelHero from "@/components/LevelHero";
 import StepBody from "@/components/StepBody";
 import RelationAnalogy from "@/components/RelationAnalogy";
+import ReactionButton from "@/components/ReactionButton";
 import { LEVELS } from "@/data/levels";
 
 /* ══════════════════════════════════════════════════════════
@@ -161,7 +162,11 @@ export default async function LevelPage({ params }: PageProps<"/level/[n]">) {
           </div>
         )}
 
-        <div className={isLast ? "pager mt-10" : "pager mt-16"}>
+        <div className={isLast ? "mt-10" : "mt-16"}>
+          <ReactionButton page={`level-${level.n}`} />
+        </div>
+
+        <div className="pager mt-6">
           {prev ? (
             <Link href={`/level/${prev.n}`} className="pager-card">
               <div className="t-cap text-muted">이전 단계</div>

@@ -1,4 +1,5 @@
 import type { VacancyData } from "@/lib/rone";
+import { formatSnapshotDate } from "@/lib/snapshot";
 
 /**
  * 권역별 공실률 카드 묶음.
@@ -44,6 +45,9 @@ export default function VacancyCards({ data }: { data: VacancyData | null }) {
 
       <p className="t-cap text-muted mt-5">
         출처: {data.source} · 기준 분기 {data.asOf} · 증감은 직전 분기 대비
+        {data.snapshotAt && (
+          <> · 지금 원본 API가 응답하지 않아 {formatSnapshotDate(data.snapshotAt)}에 저장해 둔 값을 보여줍니다</>
+        )}
       </p>
     </>
   );

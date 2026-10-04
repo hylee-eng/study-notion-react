@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 
+import { saveSnapshot, withSnapshot } from "@/lib/snapshot";
+
 /* ══════════════════════════════════════════════════════════
    한국부동산원 R-ONE Open API 조회.
 
@@ -61,6 +63,8 @@ export type VacancyData = {
   asOf: string;
   source: string;
   fetchedAt: string;
+  /** R-ONE 이 응답하지 않아 Supabase 저장본을 보여줄 때만 붙는 저장 시각 */
+  snapshotAt?: string;
 };
 
 type RoneRow = {
@@ -155,22 +159,33 @@ async function fetchVacancyUncached(): Promise<VacancyData> {
 
   const newest = regions.reduce((a, b) => (a.latest.period >= b.latest.period ? a : b));
 
-  return {
+  const data: VacancyData = {
     regions,
     asOf: newest.latest.label,
     source: SOURCE,
     fetchedAt: new Date().toISOString(),
   };
+  // 원본이 멈췄을 때를 대비해 정상 응답을 저장해 둡니다(하루 한 번)
+  await saveSnapshot(SNAPSHOT_KEY, data);
+  return data;
 }
+
+const SNAPSHOT_KEY = "rone-office-vacancy";
 
 /**
  * 하루 동안 결과를 기억해 두는 조회 함수.
  * 실패하면 에러를 던지는데, 던진 에러는 기억되지 않으므로
  * 다음 요청에서 바로 다시 시도합니다.
  */
-export const getVacancy = unstable_cache(fetchVacancyUncached, ["rone-office-vacancy"], {
+const getVacancyCached = unstable_cache(fetchVacancyUncached, [SNAPSHOT_KEY], {
   revalidate: CACHE_SECONDS,
 });
+
+/**
+ * 화면과 /api/vacancy 가 쓰는 조회 함수.
+ * R-ONE 이 실패하면 Supabase 에 저장해 둔 마지막 정상 응답을 돌려주고 snapshotAt 을 붙입니다.
+ */
+export const getVacancy = withSnapshot(SNAPSHOT_KEY, getVacancyCached);
 
 /**
  * 노션으로 가져가기 좋은 세로형 CSV. 한 줄 = 권역 하나의 분기 하나.

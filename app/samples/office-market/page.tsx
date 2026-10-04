@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import Section from "@/components/Section";
+import ReactionButton from "@/components/ReactionButton";
 import VacancyCards from "@/components/VacancyCards";
 import CopyButton from "@/components/CopyButton";
 import Shot from "@/components/Shot";
@@ -263,7 +264,9 @@ export default async function OfficeMarketPage() {
       </Section>
 
       <Section>
-        <div className="pager">
+        <ReactionButton page="sample-office-market" />
+
+        <div className="pager mt-6">
           <Link href="/samples" className="pager-card">
             <div className="t-cap text-muted">&larr; 목록으로</div>
             <div className="t-card-title text-ink mt-2">샘플 갤러리</div>
