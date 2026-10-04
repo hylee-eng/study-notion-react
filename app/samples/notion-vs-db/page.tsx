@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 import Section from "@/components/Section";
 import ReactionButton from "@/components/ReactionButton";
@@ -230,23 +231,25 @@ export default async function NotionVsDbPage() {
   );
 }
 
-/** 노션 표 ↔ DB 표를 두 쌍으로 나란히 */
+/** 노션 표 ↔ DB 표를 두 쌍으로 나란히. 같은 줄끼리 가로로 맞춰 보이도록 행 높이를 맞춥니다 */
 function Demo({ data }: { data: NotionDbData }) {
   const projectName = new Map(data.projects.map((p) => [p.id, p.name]));
 
   return (
-    <div className="mt-10 flex flex-col gap-10">
-      {/* 쌍 1 · 관계형 */}
-      <div>
-        <h3 className="t-card-title text-ink">관계형 · 업무마다 어느 프로젝트인지</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+    <div className="mt-10 flex flex-col gap-8">
+      <Pair
+        n={1}
+        title="관계형 · 업무마다 어느 프로젝트인지"
+        lead="노션은 프로젝트 이름을 보여주고, DB는 프로젝트 번호(project_id)만 저장합니다."
+      >
+        <div className="ndb-sides">
           <div>
-            <div className="t-cap text-muted mb-2">노션에서 보이는 모습</div>
+            <SideHead kind="notion" name="업무 데이터베이스" />
             <UiFrame path="업무">
               <div className="ui-tb">
                 <div className="ui-tr ndb-tr-task">
                   <div className="ui-th">업무</div>
-                  <div className="ui-th">
+                  <div className="ui-th ndb-hit">
                     <span className="ui-rollup">관계형</span>프로젝트
                   </div>
                   <div className="ui-th">상태</div>
@@ -254,7 +257,7 @@ function Demo({ data }: { data: NotionDbData }) {
                 {data.tasks.map((t) => (
                   <div key={t.id} className="ui-tr ndb-tr-task">
                     <div className="ui-td">{t.title}</div>
-                    <div className="ui-td">
+                    <div className="ui-td ndb-hit">
                       {t.project_id ? (
                         <span className="ndb-rel">{projectName.get(t.project_id)}</span>
                       ) : (
@@ -271,39 +274,53 @@ function Demo({ data }: { data: NotionDbData }) {
           </div>
 
           <div>
-            <div className="t-cap text-muted mb-2">DB에 저장된 모습 · tasks 테이블</div>
+            <SideHead kind="db" name="tasks 테이블" />
             <DbTable
+              path="tasks"
               cols={["id", "title", "status", "project_id"]}
               rows={data.tasks.map((t) => [t.id, t.title, t.status, t.project_id])}
-              highlight={3}
+              highlight={[3]}
             />
-            <div className="t-cap text-muted mt-5 mb-2">projects 테이블</div>
-            <DbTable
-              cols={["id", "name", "state"]}
-              rows={data.projects.map((p) => [p.id, p.name, p.state])}
-              highlight={0}
-            />
-            <p className="t-cap text-muted mt-3">
-              노션의 프로젝트 이름 대신, DB에는 projects 의 id 번호만 적혀 있습니다. 번호가 같은 것끼리 이어 보면 왼쪽 표가 됩니다.
-            </p>
           </div>
         </div>
-      </div>
 
-      {/* 쌍 2 · 롤업 */}
-      <div>
-        <h3 className="t-card-title text-ink">롤업 · 프로젝트마다 세어 보기</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+        <div className="ndb-sides ndb-foot">
+          <div className="ndb-read">
+            <div className="t-cap text-muted">읽는 법</div>
+            <ul className="ndb-list mt-2">
+              <li>tasks 의 project_id 1 → projects 의 id 1 → 노션에서는 &ldquo;3월 캠페인&rdquo;</li>
+              <li>노션은 이 연결을 대신 따라가서 이름으로 보여줍니다</li>
+              <li>성과 리뷰 미팅은 연결이 없어 노션에서는 &ldquo;비어 있음&rdquo;, DB에서는 NULL</li>
+            </ul>
+          </div>
           <div>
-            <div className="t-cap text-muted mb-2">노션에서 보이는 모습</div>
+            <SideHead kind="db" name="projects 테이블 · 번호가 가리키는 곳" />
+            <DbTable
+              path="projects"
+              cols={["id", "name", "state"]}
+              rows={data.projects.map((p) => [p.id, p.name, p.state])}
+              highlight={[0]}
+            />
+          </div>
+        </div>
+      </Pair>
+
+      <Pair
+        n={2}
+        title="롤업 · 프로젝트마다 세어 보기"
+        lead="노션의 롤업 열은 DB에서 저장된 값이 아니라, 열 때마다 tasks 를 다시 세어 만든 보기(view)입니다."
+      >
+        <div className="ndb-sides">
+          <div>
+            <SideHead kind="notion" name="프로젝트 데이터베이스" />
             <UiFrame path="프로젝트">
               <div className="ui-tb">
                 <div className="ui-tr ui-tr-4">
                   <div className="ui-th">프로젝트</div>
-                  <div className="ui-th">
+                  <div className="ui-th ndb-hit">
                     <span className="ui-rollup">롤업</span>개수
                   </div>
-                  <div className="ui-th">
+                  <div className="ui-th ndb-hit">
                     <span className="ui-rollup">롤업</span>완료
                   </div>
                   <div className="ui-th">마감</div>
@@ -311,8 +328,8 @@ function Demo({ data }: { data: NotionDbData }) {
                 {data.summary.map((s) => (
                   <div key={s.id} className="ui-tr ui-tr-4">
                     <div className="ui-td">{s.name}</div>
-                    <div className="ui-td ui-num">{s.task_count}건</div>
-                    <div className="ui-td">
+                    <div className="ui-td ui-num ndb-hit">{s.task_count}건</div>
+                    <div className="ui-td ndb-hit">
                       {s.done_rate === null ? (
                         <span className="ndb-empty">비어 있음</span>
                       ) : (
@@ -332,56 +349,98 @@ function Demo({ data }: { data: NotionDbData }) {
           </div>
 
           <div>
-            <div className="t-cap text-muted mb-2">DB에서 계산한 모습 · project_summary 보기</div>
+            <SideHead kind="db" name="project_summary 보기" />
             <DbTable
+              path="project_summary"
               cols={["name", "task_count", "done_rate", "last_due"]}
               rows={data.summary.map((s) => [s.name, s.task_count, s.done_rate, s.last_due])}
+              highlight={[1, 2]}
             />
-            <p className="t-cap text-muted mt-3">
-              이 표는 저장된 것이 아니라 열 때마다 tasks 를 보고 다시 셉니다. 업무가 없는 신규 빌딩 오픈은 0건이고,
-              프로젝트가 비어 있는 성과 리뷰 미팅은 어느 줄에도 세어지지 않았습니다.
-            </p>
           </div>
         </div>
-      </div>
+
+        <ul className="ndb-list ndb-foot">
+          <li>업무가 없는 신규 빌딩 오픈은 0건, 완료율은 계산할 수 없어 노션은 &ldquo;비어 있음&rdquo;, DB는 NULL</li>
+          <li>프로젝트가 비어 있는 성과 리뷰 미팅은 어느 줄에도 세어지지 않습니다</li>
+        </ul>
+      </Pair>
     </div>
   );
 }
 
-/** 실제 DB 표처럼 보이는 표. highlight 번째 열(연결 번호)을 강조합니다 */
+/** 비교 한 쌍을 묶는 카드. 번호 · 제목 · 한 줄 요약 아래에 구분선을 긋고 본문을 둡니다 */
+function Pair({ n, title, lead, children }: { n: number; title: string; lead: string; children: ReactNode }) {
+  return (
+    <section className="ndb-pair">
+      <div className="ndb-pair-head">
+        <span className="ndb-pair-n">{n}</span>
+        <div>
+          <h3 className="t-card-title text-ink">{title}</h3>
+          <p className="t-body text-muted mt-1">{lead}</p>
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** 좌우 패널 머리말. 노션 / DB 를 같은 모양으로 맞춰 무엇과 무엇을 비교하는지 보이게 합니다 */
+function SideHead({ kind, name }: { kind: "notion" | "db"; name: string }) {
+  return (
+    <div className="ndb-side-head">
+      <span className={kind === "notion" ? "ndb-kind bg-cream text-ink" : "ndb-kind bg-teal text-canvas"}>
+        {kind === "notion" ? "노션" : "DB"}
+      </span>
+      <span className="t-cap text-bodytext">{name}</span>
+    </div>
+  );
+}
+
+/** 실제 DB 표처럼 보이는 표. 노션 화면과 같은 창 틀에 넣고, highlight 열(노션 쪽 강조 열과 대응)을 칠합니다 */
 function DbTable({
+  path,
   cols,
   rows,
-  highlight,
+  highlight = [],
 }: {
+  path: string;
   cols: string[];
   rows: (string | number | null)[][];
-  highlight?: number;
+  highlight?: number[];
 }) {
+  const hit = (i: number) => (highlight.includes(i) ? "ndb-hit" : undefined);
   return (
-    <div className="ndb-table-wrap">
-      <table className="ndb-table">
-        <thead>
-          <tr>
-            {cols.map((c, i) => (
-              <th key={c} className={i === highlight ? "ndb-hit" : undefined}>
-                {c}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, ri) => (
-            <tr key={ri}>
-              {r.map((v, i) => (
-                <td key={i} className={i === highlight ? "ndb-hit" : undefined}>
-                  {v === null ? <span className="ndb-null">NULL</span> : v}
-                </td>
+    <div className="ui ndb-db">
+      <div className="ui-bar">
+        <span className="ui-dot" />
+        <span className="ui-dot" />
+        <span className="ui-dot" />
+        <span className="ui-path">Supabase · {path}</span>
+      </div>
+      <div className="ndb-table-wrap">
+        <table className="ndb-table">
+          <thead>
+            <tr>
+              {cols.map((c, i) => (
+                <th key={c} className={hit(i)}>
+                  {c}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r, ri) => (
+              <tr key={ri}>
+                {r.map((v, i) => (
+                  <td key={i} className={hit(i)}>
+                    {v === null ? <span className="ndb-null">NULL</span> : v}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
